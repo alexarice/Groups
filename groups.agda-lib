@@ -1,0 +1,3 @@
+name: groups
+depend: standard-library
+include: .
