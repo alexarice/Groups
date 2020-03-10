@@ -4,6 +4,7 @@ open import Algebra.Bundles using (Group)
 
 module Algebra.Group.Symmetric.PartialEquality {g₁ g₂} (𝓖 : Group g₁ g₂) where
 
+open Group hiding (setoid)
 open Group 𝓖
 
 open import Algebra.Group.Symmetric.Base 𝓖
@@ -13,7 +14,7 @@ open import Data.Product
 open import Function using (_$_)
 open import Function.Endomorphism.Setoid setoid using (Endo)
 open import Function.Equality using (_⇨_;Π;_⟶_) renaming (_∘_ to _*_)
-open import Function.Inverse using (Inverse;_∘_;id)
+open import Function.Inverse using (Inverse)
 open import Level
 open import Relation.Binary using (Setoid; _⇒_)
 
@@ -43,7 +44,7 @@ open PartSymEq public
     }
   }
 
-open Setoid ≣'-setoid renaming (_≈_ to _≣'_)
+open Setoid ≣'-setoid renaming (_≈_ to _≣'_) public
 
 open Setoid
 open IsMagma hiding (setoid)
@@ -59,16 +60,16 @@ open IsGroup hiding (setoid)
 ∘-isSemiGroup .isMagma = ∘-isMagma
 ∘-isSemiGroup .assoc h g f .peq x∼y = cong (to h) (cong (to g) (cong (to f) x∼y))
 
-∘-id-isMonoid : IsMonoid _≣'_ _∘_ id
-∘-id-isMonoid .isSemigroup = ∘-isSemiGroup
-∘-id-isMonoid .identity .proj₁ g .peq = cong (to g)
-∘-id-isMonoid .identity .proj₂ g .peq = cong (to g)
+∘-e-isMonoid : IsMonoid _≣'_ _∘_ e
+∘-e-isMonoid .isSemigroup = ∘-isSemiGroup
+∘-e-isMonoid .identity .proj₁ g .peq = cong (to g)
+∘-e-isMonoid .identity .proj₂ g .peq = cong (to g)
 
-∘-id-inv-isGroup : IsGroup _≣'_ _∘_ id inv
-∘-id-inv-isGroup .isMonoid = ∘-id-isMonoid
-∘-id-inv-isGroup .inverse .proj₁ g .peq {x} x∼y = S.trans (left-inverse-of g x) x∼y
-∘-id-inv-isGroup .inverse .proj₂ g .peq {x} x∼y = S.trans (right-inverse-of g x) x∼y
-∘-id-inv-isGroup .⁻¹-cong {f} {g} f≣'g .peq {x} {y} x∼y = begin
+∘-e-inv-isGroup : IsGroup _≣'_ _∘_ e inv
+∘-e-inv-isGroup .isMonoid = ∘-e-isMonoid
+∘-e-inv-isGroup .inverse .proj₁ g .peq {x} x∼y = S.trans (left-inverse-of g x) x∼y
+∘-e-inv-isGroup .inverse .proj₂ g .peq {x} x∼y = S.trans (right-inverse-of g x) x∼y
+∘-e-inv-isGroup .⁻¹-cong {f} {g} f≣'g .peq {x} {y} x∼y = begin
   from f ⟨$⟩ x                 ≈˘⟨ left-inverse-of g $ from f ⟨$⟩ x ⟩
   from g * to g * from f ⟨$⟩ x ≈˘⟨ cong (from g) $ peq f≣'g S.refl ⟩
   from g * to f * from f ⟨$⟩ x ≈⟨ cong (from g) $ right-inverse-of f x ⟩
@@ -76,6 +77,14 @@ open IsGroup hiding (setoid)
   from g ⟨$⟩ y                 ∎
   where
     open import Relation.Binary.Reasoning.Setoid setoid
+
+PartSymGroup : Group (g₁ ⊔ g₂) (suc (g₁ ⊔ g₂))
+Carrier PartSymGroup = Sym
+_≈_ PartSymGroup = λ f → PartSymEq (to f)
+_∙_ PartSymGroup = _∘_
+ε PartSymGroup = e
+PartSymGroup ⁻¹ = inv
+isGroup PartSymGroup = ∘-e-inv-isGroup
 
 open import Algebra.Group.Symmetric.Equality 𝓖 using (≣-setoid; eq)
 open Setoid ≣-setoid renaming (_≈_ to _≣_)

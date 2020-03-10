@@ -13,7 +13,7 @@ open import Algebra.Structures using (IsMagma; IsSemigroup; IsMonoid; IsGroup)
 open import Data.Product
 open import Function using (_$_)
 open import Function.Equality using (_⇨_;Π;_⟶_) renaming (_∘_ to _*_)
-open import Function.Inverse using (Inverse;_∘_;id)
+open import Function.Inverse using (Inverse)
 open import Level
 open import Relation.Binary using (Setoid; _⇒_)
 
@@ -43,7 +43,7 @@ open SymEq public
     }
   }
 
-open Setoid ≣-setoid renaming (_≈_ to _≣_)
+open Setoid ≣-setoid renaming (_≈_ to _≣_) public
 
 open Setoid
 open IsMagma hiding (setoid)
@@ -59,16 +59,16 @@ open IsGroup hiding (setoid)
 ∘-isSemiGroup .isMagma = ∘-isMagma
 ∘-isSemiGroup .assoc h g f .eq x∼y = cong (to h) (cong (to g) (cong (to f) x∼y))
 
-∘-id-isMonoid : IsMonoid _≣_ _∘_ id
-∘-id-isMonoid .isSemigroup = ∘-isSemiGroup
-∘-id-isMonoid .identity .proj₁ g .eq = cong (to g)
-∘-id-isMonoid .identity .proj₂ g .eq = cong (to g)
+∘-e-isMonoid : IsMonoid _≣_ _∘_ e
+∘-e-isMonoid .isSemigroup = ∘-isSemiGroup
+∘-e-isMonoid .identity .proj₁ g .eq = cong (to g)
+∘-e-isMonoid .identity .proj₂ g .eq = cong (to g)
 
-∘-id-inv-isGroup : IsGroup _≣_ _∘_ id inv
-∘-id-inv-isGroup .isMonoid = ∘-id-isMonoid
-∘-id-inv-isGroup .inverse .proj₁ g .eq {x} x∼y = S.trans (left-inverse-of g x) x∼y
-∘-id-inv-isGroup .inverse .proj₂ g .eq {x} x∼y = S.trans (right-inverse-of g x) x∼y
-∘-id-inv-isGroup .⁻¹-cong {f} {g} f≣g .eq {x} {y} x∼y = begin
+∘-e-inv-isGroup : IsGroup _≣_ _∘_ e inv
+∘-e-inv-isGroup .isMonoid = ∘-e-isMonoid
+∘-e-inv-isGroup .inverse .proj₁ g .eq {x} x∼y = S.trans (left-inverse-of g x) x∼y
+∘-e-inv-isGroup .inverse .proj₂ g .eq {x} x∼y = S.trans (right-inverse-of g x) x∼y
+∘-e-inv-isGroup .⁻¹-cong {f} {g} f≣g .eq {x} {y} x∼y = begin
   from f ⟨$⟩ x                 ≈˘⟨ left-inverse-of g $ from f ⟨$⟩ x ⟩
   from g * to g * from f ⟨$⟩ x ≈˘⟨ cong (from g) $ eq f≣g S.refl ⟩
   from g * to f * from f ⟨$⟩ x ≈⟨ cong (from g) $ right-inverse-of f x ⟩
@@ -83,4 +83,4 @@ _≈_ SymGroup = _≣_
 _∙_ SymGroup = _∘_
 ε SymGroup = e
 SymGroup ⁻¹ = inv
-isGroup SymGroup = ∘-id-inv-isGroup
+isGroup SymGroup = ∘-e-inv-isGroup
