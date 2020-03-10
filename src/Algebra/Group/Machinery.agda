@@ -3,7 +3,7 @@
 open import Algebra.Bundles using (Group)
 module Algebra.Group.Machinery {g₁ g₂} (𝓖 : Group g₁ g₂) where
 
-open import Algebra.Group.Symmetric.Base 𝓖
+open import Algebra.Group.Symmetric 𝓖
 open import Algebra.Group.Symmetric.Equality 𝓖
 open import Algebra.Group.Symmetric.PartialEquality 𝓖 renaming (trans to ≣'-trans)
 

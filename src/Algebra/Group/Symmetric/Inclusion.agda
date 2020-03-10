@@ -6,7 +6,7 @@ module Algebra.Group.Symmetric.Inclusion {g₁ g₂} (𝓖 : Group g₁ g₂) wh
 
 open Group 𝓖
 
-open import Algebra.Group.Symmetric.Base 𝓖
+open import Algebra.Group.Symmetric 𝓖
 open import Algebra.Group.Symmetric.Equality 𝓖
 open import Algebra.Morphism
 open import Function.Inverse using (Inverse; _∘_; _InverseOf_)

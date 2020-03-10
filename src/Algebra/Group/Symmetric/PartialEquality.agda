@@ -7,7 +7,7 @@ module Algebra.Group.Symmetric.PartialEquality {g₁ g₂} (𝓖 : Group g₁ g�
 open Group hiding (setoid)
 open Group 𝓖
 
-open import Algebra.Group.Symmetric.Base 𝓖
+open import Algebra.Group.Symmetric 𝓖
 
 open import Algebra.Structures using (IsMagma; IsSemigroup; IsMonoid; IsGroup)
 open import Data.Product

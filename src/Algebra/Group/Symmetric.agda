@@ -2,7 +2,7 @@
 
 open import Algebra.Bundles using (Group)
 
-module Algebra.Group.Symmetric.Base {g₁ g₂} (𝓖 : Group g₁ g₂) where
+module Algebra.Group.Symmetric {g₁ g₂} (𝓖 : Group g₁ g₂) where
 
 open Group 𝓖
 
