@@ -21,15 +21,14 @@ open import Algebra.Definitions hiding (Inverse)
 Sym : Set (g₁ ⊔ g₂)
 Sym = Inverse setoid setoid
 
-
 e : Sym
 e = id
 
-FuncSetoid : Setoid (g₁ ⊔ g₂) (g₁ ⊔ g₂)
-FuncSetoid = setoid ⇨ setoid
+funcSetoid : Setoid (g₁ ⊔ g₂) (g₁ ⊔ g₂)
+funcSetoid = setoid ⇨ setoid
 
 open module S = Setoid setoid using ()
-open module F = Setoid FuncSetoid using () renaming (_≈_ to _≃_)
+open module F = Setoid funcSetoid using () renaming (_≈_ to _≃_)
 
 record SymEq (f g : Sym) : Set (suc (g₁ ⊔ g₂)) where
   field
