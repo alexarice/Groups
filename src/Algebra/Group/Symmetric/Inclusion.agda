@@ -10,8 +10,10 @@ open import Algebra.Group.Symmetric 𝓖
 open import Algebra.Group.Symmetric.Equality 𝓖
 open import Algebra.Morphism
 open import Function.Inverse using (Inverse; _∘_; _InverseOf_)
+open import Function.LeftInverse using (_LeftInverseOf_)
 open import Function.Equality using (_⟶_; Π)
 open import Function using (_$_)
+open import Function.Definitions _≈_ _≣_
 open import Relation.Binary using (Setoid)
 
 open Π
@@ -19,8 +21,6 @@ open Inverse
 open _InverseOf_
 
 open import Relation.Binary.Reasoning.Setoid setoid
-open Setoid ≣-setoid renaming (_≈_ to _≣_) hiding (Carrier)
-
 
 ⟦_⟧ : Carrier → Sym
 ⟦ a ⟧ .to ⟨$⟩ x = a ∙ x
@@ -52,3 +52,10 @@ open IsSemigroupMorphism
   ε ∙ x ≈⟨ identityˡ x ⟩
   x     ≈⟨ x≈y ⟩
   y     ∎
+
+⟦⟧-injective : Injective ⟦_⟧
+⟦⟧-injective {x} {y} ⟦x⟧≣⟦y⟧ = begin
+  x ≈˘⟨ identityʳ x ⟩
+  (to ⟦ x ⟧ ⟨$⟩ ε) ≈⟨ eq ⟦x⟧≣⟦y⟧ S.refl ⟩
+  (to ⟦ y ⟧ ⟨$⟩ ε) ≈⟨ identityʳ y ⟩
+  y ∎

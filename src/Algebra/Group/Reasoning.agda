@@ -5,9 +5,11 @@ module Algebra.Group.Reasoning {g₁ g₂} (𝓖 : Group g₁ g₂) where
 
 open import Algebra.Group.Symmetric 𝓖
 open import Algebra.Group.Symmetric.Equality 𝓖 renaming (sym to ≣-sym)
+open import Algebra.Group.Symmetric.Inclusion 𝓖
 open import Algebra.Group.Symmetric.PartialEquality 𝓖 renaming (trans to ≣'-trans; refl to ≣'-refl)
 
-open Group PartSymGroup
+open Group PartSymGroup hiding (_≈_)
+open Group 𝓖 using (_≈_)
 
 applyAt : ∀ f {g} before after → f ≣ g → before ∘ f ∘ after ≣' before ∘ g ∘ after
 applyAt f {g} before after p = ∙-congˡ {before} {f ∘ after} {g ∘ after} lem
@@ -111,8 +113,11 @@ applyAtTnoBAM' : ∀ {g} {h}
                → e ≣' h
 applyAtTnoBAM' p rest = applyAtTM' e e p rest
 
-begin_ : ∀ {f g} → f ≣' g → f ≣ g
-(begin p) .eq = peq p
+begin_ : ∀ {g h} → ⟦ g ⟧ ≣' ⟦ h ⟧ → g ≈ h
+begin_ {g} {h} p = ⟦⟧-injective p'
+  where
+    p' : ⟦ g ⟧ ≣ ⟦ h ⟧
+    p' .eq = peq p
 
 infixr 40 applyAtT
 syntax applyAtT f before after p rest = before ∘⟨ f ⟩∘ after ≣⟨ p ⟩ rest
