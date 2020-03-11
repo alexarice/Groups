@@ -1,11 +1,11 @@
 {-# OPTIONS --safe --without-K #-}
 
 open import Algebra.Bundles using (Group)
-module Algebra.Group.Machinery {g₁ g₂} (𝓖 : Group g₁ g₂) where
+module Algebra.Group.Reasoning {g₁ g₂} (𝓖 : Group g₁ g₂) where
 
 open import Algebra.Group.Symmetric 𝓖
 open import Algebra.Group.Symmetric.Equality 𝓖 renaming (sym to ≣-sym)
-open import Algebra.Group.Symmetric.PartialEquality 𝓖 renaming (trans to ≣'-trans)
+open import Algebra.Group.Symmetric.PartialEquality 𝓖 renaming (trans to ≣'-trans; refl to ≣'-refl)
 
 open Group PartSymGroup
 
@@ -110,3 +110,60 @@ applyAtTnoBAM' : ∀ {g} {h}
                → g ≣' h
                → e ≣' h
 applyAtTnoBAM' p rest = applyAtTM' e e p rest
+
+begin_ : ∀ {f g} → f ≣' g → f ≣ g
+(begin p) .eq = peq p
+
+infixr 40 applyAtT
+syntax applyAtT f before after p rest = before ∘⟨ f ⟩∘ after ≣⟨ p ⟩ rest
+
+infixr 40 applyAtT'
+syntax applyAtT' f before after p rest = before ∘⟨ f ⟩∘ after ≣˘⟨ p ⟩ rest
+
+infixr 40 applyAtTnoB
+syntax applyAtTnoB f after p rest = ⟨ f ⟩∘ after ≣⟨ p ⟩ rest
+
+infixr 40 applyAtTnoB'
+syntax applyAtTnoB' f after p rest = ⟨ f ⟩∘ after ≣˘⟨ p ⟩ rest
+
+infixr 40 applyAtTnoA
+syntax applyAtTnoA f before p rest = before ∘⟨ f ⟩≣⟨ p ⟩ rest
+
+infixr 40 applyAtTnoA'
+syntax applyAtTnoA' f before p rest = before ∘⟨ f ⟩≣˘⟨ p ⟩ rest
+
+infixr 40 applyAtTnoBA
+syntax applyAtTnoBA f p rest = ⟨ f ⟩≣⟨ p ⟩ rest
+
+infixr 40 applyAtTnoBA'
+syntax applyAtTnoBA' f p rest = ⟨ f ⟩≣˘⟨ p ⟩ rest
+
+infixr 40 applyAtTM
+syntax applyAtTM before after p rest = before ∘⟨⟩∘ after ≣⟨ p ⟩ rest
+
+infixr 40 applyAtTM'
+syntax applyAtTM' before after p rest = before ∘⟨⟩∘ after ≣˘⟨ p ⟩ rest
+
+infixr 40 applyAtTnoBM
+syntax applyAtTnoBM after p rest = ⟨⟩∘ after ≣⟨ p ⟩ rest
+
+infixr 40 applyAtTnoBM'
+syntax applyAtTnoBM' after p rest = ⟨⟩∘ after ≣˘⟨ p ⟩ rest
+
+infixr 40 applyAtTnoAM
+syntax applyAtTnoAM before p rest = before ∘⟨⟩≣⟨ p ⟩ rest
+
+infixr 40 applyAtTnoAM'
+syntax applyAtTnoAM' before p rest = before ∘⟨⟩≣˘⟨ p ⟩ rest
+
+infixr 40 applyAtTnoBAM
+syntax applyAtTnoBAM p rest = ⟨⟩≣⟨ p ⟩ rest
+
+infixr 40 applyAtTnoBAM'
+syntax applyAtTnoBAM' p rest = ⟨⟩≣˘⟨ p ⟩ rest
+
+end : ∀ h → h ≣' h
+end h = ≣'-refl {h}
+
+infixr 50 end
+syntax end h = h ∎
