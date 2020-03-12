@@ -22,6 +22,9 @@ open _InverseOf_
 
 open import Relation.Binary.Reasoning.Setoid setoid
 
+open import Algebra.Morphism.Group
+open GroupMorphism
+
 ⟦_⟧ : Carrier → Sym
 ⟦ a ⟧ .to ⟨$⟩ x = a ∙ x
 ⟦ a ⟧ .to .cong i≈j = ∙-congˡ i≈j
@@ -42,13 +45,13 @@ open IsGroupMorphism
 open IsMonoidMorphism
 open IsSemigroupMorphism
 
-⟦⟧-GroupMorphism : ⟦_⟧ Is 𝓖 -Group⟶ SymGroup
-⟦⟧-GroupMorphism .mn-homo .sm-homo .⟦⟧-cong g≈h .eq = ∙-cong g≈h
-⟦⟧-GroupMorphism .mn-homo .sm-homo .∙-homo g h .eq {x} {y} x≈y = begin
+⟦⟧-IsGroupMorphism : ⟦_⟧ Is 𝓖 -Group⟶ SymGroup
+⟦⟧-IsGroupMorphism .mn-homo .sm-homo .⟦⟧-cong g≈h .eq = ∙-cong g≈h
+⟦⟧-IsGroupMorphism .mn-homo .sm-homo .∙-homo g h .eq {x} {y} x≈y = begin
   g ∙ h ∙ x   ≈⟨ ∙-congˡ x≈y ⟩
   g ∙ h ∙ y   ≈⟨ assoc g h y ⟩
   g ∙ (h ∙ y) ∎
-⟦⟧-GroupMorphism .mn-homo .ε-homo .eq {x} {y} x≈y = begin
+⟦⟧-IsGroupMorphism .mn-homo .ε-homo .eq {x} {y} x≈y = begin
   ε ∙ x ≈⟨ identityˡ x ⟩
   x     ≈⟨ x≈y ⟩
   y     ∎
@@ -59,3 +62,7 @@ open IsSemigroupMorphism
   (to ⟦ x ⟧ ⟨$⟩ ε) ≈⟨ eq ⟦x⟧≣⟦y⟧ S.refl ⟩
   (to ⟦ y ⟧ ⟨$⟩ ε) ≈⟨ identityʳ y ⟩
   y ∎
+
+⟦⟧ : GroupMorphism 𝓖 SymGroup
+⟦⟧ .morphism = ⟦_⟧
+⟦⟧ .isGroupMorphism = ⟦⟧-IsGroupMorphism

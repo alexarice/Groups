@@ -5,7 +5,7 @@ module Algebra.Group.Reasoning {g₁ g₂} (𝓖 : Group g₁ g₂) where
 
 open import Algebra.Group.Symmetric 𝓖
 open import Algebra.Group.Symmetric.Equality 𝓖 renaming (sym to ≣-sym)
-open import Algebra.Group.Symmetric.Inclusion 𝓖
+open import Algebra.Group.Symmetric.Inclusion 𝓖 public
 open import Algebra.Group.Symmetric.PartialEquality 𝓖 renaming (trans to ≣'-trans; refl to ≣'-refl)
 
 open Group PartSymGroup hiding (_≈_)
@@ -113,12 +113,6 @@ applyAtTnoBAM' : ∀ {g} {h}
                → e ≣' h
 applyAtTnoBAM' p rest = applyAtTM' e e p rest
 
-begin_ : ∀ {g h} → ⟦ g ⟧ ≣' ⟦ h ⟧ → g ≈ h
-begin_ {g} {h} p = ⟦⟧-injective p'
-  where
-    p' : ⟦ g ⟧ ≣ ⟦ h ⟧
-    p' .eq = peq p
-
 infixr 40 applyAtT
 syntax applyAtT f before after p rest = before ∘⟨ f ⟩∘ after ≣⟨ p ⟩ rest
 
@@ -172,3 +166,11 @@ end h = ≣'-refl {h}
 
 infixr 50 end
 syntax end h = h ∎
+
+-- begin_ : ∀ {g h} → ⟦ g ⟧ ≣' ⟦ h ⟧ → g ≈ h
+-- begin_ {g} {h} p = ⟦⟧-injective p'
+--   where
+--     p' : ⟦ g ⟧ ≣ ⟦ h ⟧
+--     p' .eq = peq p
+
+open import Algebra.Group.Reasoning.Reflection 𝓖 public
