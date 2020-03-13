@@ -4,18 +4,18 @@ open import Algebra.Bundles using (Group)
 module Algebra.Group.Reasoning {g₁ g₂} (𝓖 : Group g₁ g₂) where
 
 open import Algebra.Group.Symmetric 𝓖
-open import Algebra.Group.Symmetric.Equality 𝓖 renaming (sym to ≣-sym)
+open import Algebra.Group.Symmetric.Equality 𝓖
 open import Algebra.Group.Symmetric.Inclusion 𝓖 public
-open import Algebra.Group.Symmetric.PartialEquality 𝓖 renaming (trans to ≣'-trans; refl to ≣'-refl)
+open import Algebra.Group.Symmetric.PartialEquality 𝓖
 
 open Group PartSymGroup hiding (_≈_)
 open Group 𝓖 using (_≈_)
 
 applyAt : ∀ f {g} before after → f ≣ g → before ∘ f ∘ after ≣' before ∘ g ∘ after
-applyAt f {g} before after p = ∙-congˡ {before} {f ∘ after} {g ∘ after} lem
+applyAt f {g} before after p = ∙-congʳ {after} {before ∘ f} {before ∘ g} lem
  where
-  lem : f ∘ after ≣' g ∘ after
-  lem = ∙-congʳ {after} {f} {g} (weaken p)
+  lem : before ∘ f ≣' before ∘ g
+  lem = ∙-congˡ {before} {f} {g} (weaken p)
 
 applyAtT : ∀ f {g} before after {h}
          → f ≣ g

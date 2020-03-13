@@ -18,6 +18,6 @@ e = id
 inv : Op₁ Sym
 inv = inv'
 
-infixr 9 _∘_
+infixl 60 _∘_
 _∘_ : Op₂ Sym
 _∘_ = _∘'_

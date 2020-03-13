@@ -44,7 +44,7 @@ open PartSymEq public
     }
   }
 
-open Setoid ≣'-setoid renaming (_≈_ to _≣'_) public
+open Setoid ≣'-setoid renaming (_≈_ to _≣'_; sym to ≣'-sym; trans to ≣'-trans; refl to ≣'-refl) public
 
 open Setoid
 open IsMagma hiding (setoid)

@@ -43,7 +43,7 @@ open SymEq public
     }
   }
 
-open Setoid ≣-setoid renaming (_≈_ to _≣_) hiding (Carrier) public
+open Setoid ≣-setoid renaming (_≈_ to _≣_; sym to ≣-sym; trans to ≣-trans; refl to ≣-refl) hiding (Carrier) public
 
 open Setoid
 open IsMagma hiding (setoid)

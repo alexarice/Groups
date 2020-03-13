@@ -44,3 +44,36 @@ module Part2 {h₁ h₂} (𝓗 : Group h₁ h₂) where
     ⟨⟩∘ ⟦ h ⟧                   ≣˘⟨ invˡ ⟦ g ⟧ ⟩
     inv ⟦ g ⟧ ∘⟨ ⟦ g ⟧ ∘ ⟦ h ⟧ ⟩≣⟨ ⟨ ⟦⟧ ⟩⦅ p ⦆ ⟩
     inv ⟦ g ⟧                   ∎
+
+  inverse-is-unique' : ∀ g h → g ∙ h ≈ ε → g ≈ h ⁻¹
+  inverse-is-unique' g h p = begin⟨ ⟦⟧ ⟩
+    ⟦ g ⟧ ∘⟨⟩≣˘⟨ invʳ ⟦ h ⟧ ⟩
+    ⟨ ⟦ g ⟧ ∘ ⟦ h ⟧ ⟩∘ inv ⟦ h ⟧ ≣⟨ ⟨ ⟦⟧ ⟩⦅ p ⦆ ⟩
+    inv ⟦ h ⟧ ∎
+
+  right-cancellation : ∀ g h x → g ∙ x ≈ h ∙ x → g ≈ h
+  right-cancellation g h x p = begin⟨ ⟦⟧ ⟩
+    ⟦ g ⟧ ∘⟨⟩≣˘⟨ invʳ ⟦ x ⟧ ⟩
+    ⟨ ⟦ g ⟧ ∘ ⟦ x ⟧ ⟩∘ inv ⟦ x ⟧ ≣⟨ ⟨ ⟦⟧ ⟩⦅ p ⦆ ⟩
+    ⟦ h ⟧ ∘⟨ ⟦ x ⟧ ∘ inv ⟦ x ⟧ ⟩≣⟨ invʳ ⟦ x ⟧ ⟩
+    ⟦ h ⟧ ∎
+
+  left-cancellation : ∀ g h x → x ∙ g ≈ x ∙ h → g ≈ h
+  left-cancellation g h x p = begin⟨ ⟦⟧ ⟩
+    ⟨⟩∘ ⟦ g ⟧ ≣˘⟨ invˡ ⟦ x ⟧ ⟩
+    inv ⟦ x ⟧ ∘⟨ ⟦ x ⟧ ∘ ⟦ g ⟧ ⟩≣⟨ ⟨ ⟦⟧ ⟩⦅ p ⦆ ⟩
+    ⟨ inv ⟦ x ⟧ ∘ ⟦ x ⟧ ⟩∘ ⟦ h ⟧ ≣⟨ invˡ ⟦ x ⟧ ⟩
+    ⟦ h ⟧ ∎
+
+  inv-of-composite : ∀ g h → (g ∙ h) ⁻¹ ≈ h ⁻¹ ∙ g ⁻¹
+  inv-of-composite g h = begin⟨ ⟦⟧ ⟩
+    inv (⟦ g ⟧ ∘ ⟦ h ⟧) ∘⟨⟩≣˘⟨ invʳ ⟦ g ⟧ ⟩
+    inv (⟦ g ⟧ ∘ ⟦ h ⟧) ∘ ⟦ g ⟧ ∘⟨⟩∘ inv ⟦ g ⟧ ≣˘⟨ invʳ ⟦ h ⟧ ⟩
+    ⟨ inv (⟦ g ⟧ ∘ ⟦ h ⟧) ∘ (⟦ g ⟧ ∘ ⟦ h ⟧) ⟩∘ inv ⟦ h ⟧ ∘ inv ⟦ g ⟧ ≣⟨ invˡ (⟦ g ⟧ ∘ ⟦ h ⟧) ⟩
+    (inv ⟦ h ⟧ ∘ inv ⟦ g ⟧) ∎
+
+  inv-involution : ∀ g → (g ⁻¹) ⁻¹ ≈ g
+  inv-involution g = sym (inverse-is-unique (g ⁻¹) g (inverseˡ g))
+
+  inv-e : ε ⁻¹ ≈ ε
+  inv-e = sym (inverse-is-unique ε ε (identityˡ ε))
