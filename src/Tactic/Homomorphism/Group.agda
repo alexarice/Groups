@@ -14,9 +14,8 @@ open import Data.Nat     as ℕ       using (ℕ; suc; zero)
 open import Data.Product as Product using (_×_; _,_)
 
 open import Agda.Builtin.Reflection
-open import Reflection.TCMonadSyntax
+open import Reflection.TypeChecking.MonadSyntax
 open import Reflection.Argument
-open import Reflection.Term using (getName; _⋯⟅∷⟆_)
 
 import Relation.Binary.Reasoning.Setoid as SetoidReasoning
 
@@ -86,10 +85,10 @@ module _ {c₁ ℓ₁ c₂ ℓ₂} {From : Group c₁ ℓ₁} {To : Group c₂ �
     f[ inv' x ↓] ∙₂ (f[ x ↓] ∙₂ f[ x ↓] ⁻¹₂)        ≈˘⟨ assoc₂ f[ inv' x ↓] f[ x ↓] (f[ x ↓] T.⁻¹) ⟩
     (f[ inv' x ↓] ∙₂ f[ x ↓]) ∙₂ f[ x ↓] ⁻¹₂        ≈˘⟨ ∙-congʳ₂ $ ∙-homo [ inv' x ↓] [ x ↓] ⟩
     morphism ([ inv' x ↓] ∙₁ [ x ↓]) ∙₂ f[ x ↓] ⁻¹₂ ≈⟨ ∙-congʳ₂ $ ⟦⟧-cong $ inverseˡ₁ [ x ↓] ⟩
-    morphism ε₁ ∙₂ f[ x ↓] ⁻¹₂                     ≈⟨ ∙-congʳ₂ $ ε-homo ⟩
-    ε₂ ∙₂ f[ x ↓] ⁻¹₂                              ≈⟨ identityˡ₂ (f[ x ↓] T.⁻¹) ⟩
-    f[ x ↓] ⁻¹₂                                    ≈⟨ ⁻¹-cong₂ $ proof x ⟩
-    f[ x ⇓] ⁻¹₂                                    ≡⟨⟩
+    morphism ε₁ ∙₂ f[ x ↓] ⁻¹₂                      ≈⟨ ∙-congʳ₂ $ ε-homo ⟩
+    ε₂ ∙₂ f[ x ↓] ⁻¹₂                               ≈⟨ identityˡ₂ (f[ x ↓] T.⁻¹) ⟩
+    f[ x ↓] ⁻¹₂                                     ≈⟨ ⁻¹-cong₂ $ proof x ⟩
+    f[ x ⇓] ⁻¹₂                                     ≡⟨⟩
     f[ inv' x ⇓]                                    ∎
   proof [ x ↑] = begin f[ [ x ↑] ↓] ∎
 
@@ -183,13 +182,11 @@ solve-macro : Term → Term → Term → TC _
 solve-macro f eq hole = do
   eq' ← inferType eq >>= normalise
   just (lhs , rhs) ← returnTC (getArgs eq')
-    where nothing → typeError (strErr "could not split arg" ∷ [])
+    where nothing → typeError (strErr "could not split arg" ∷ termErr eq ∷ [])
   let soln = constructSoln f eq lhs rhs
   returnType ← normalise $ constructReturn f lhs rhs
   hole' ← checkType hole returnType
   unify hole' soln
-
-
 
 macro
   ⟨_⟩⦅_⦆ : Term → Term → Term → TC _
