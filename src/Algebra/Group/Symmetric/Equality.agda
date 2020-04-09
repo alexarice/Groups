@@ -11,11 +11,12 @@ open import Algebra.Group.Symmetric 𝓖
 
 open import Algebra.Structures using (IsMagma; IsSemigroup; IsMonoid; IsGroup)
 open import Data.Product
-open import Function using (_$_)
+open import Function using (_$_;_on_)
 open import Function.Equality using (_⇨_;Π;_⟶_) renaming (_∘_ to _*_)
-open import Function.Inverse using (Inverse)
+open import Function.Inverse.Strict using (Inverse)
 open import Level
 open import Relation.Binary using (Setoid; _⇒_)
+import Relation.Binary.Reasoning.Setoid as Reasoning
 
 open Π
 open Inverse
@@ -26,24 +27,26 @@ funcSetoid = setoid ⇨ setoid
 open module S = Setoid setoid using ()
 open module F = Setoid funcSetoid using () renaming (_≈_ to _≃_)
 
-record SymEq (f g : Sym) : Set (suc (g₁ ⊔ g₂)) where
+infix 4 _≣_
+record _≣_ (A B : Sym) : Set (g₁ ⊔ g₂) where
+  constructor mk≣
   field
-    eq : to f ≃ to g
+    eq : to A ≃ to B
 
-open SymEq public
+open _≣_ public
 
 ≣-setoid : Setoid _ _
 ≣-setoid = record
   { Carrier = Sym
-  ; _≈_ = SymEq
+  ; _≈_ = _≣_
   ; isEquivalence = record
-    { refl = λ {x} → record { eq = F.refl {to x} }
-    ; sym = λ {f g} f≃g → record { eq = F.sym {to f} {to g} (eq f≃g) }
-    ; trans = λ {f g h} f≃g g≃h → record { eq = F.trans {to f} {to g} {to h} (eq f≃g) (eq g≃h) }
+    { refl = λ {x} → mk≣ (F.refl {x = to x})
+    ; sym = λ {x} {y} x≣y → mk≣ (F.sym {x = to x} {y = to y} (eq x≣y))
+    ; trans = λ {x} {y} {z} x≣y y≣z → mk≣ (F.trans {i = to x} {j = to y} {k = to z} (eq x≣y) (eq y≣z))
     }
   }
 
-open Setoid ≣-setoid renaming (_≈_ to _≣_; sym to ≣-sym; trans to ≣-trans; refl to ≣-refl) hiding (Carrier) public
+open Setoid ≣-setoid hiding (_≈_) renaming (sym to ≣-sym; trans to ≣-trans; refl to ≣-refl) hiding (Carrier) public
 
 open Setoid
 open IsMagma hiding (setoid)
@@ -53,7 +56,7 @@ open IsGroup hiding (setoid)
 
 ∘-isMagma : IsMagma _≣_ _∘_
 ∘-isMagma .isEquivalence = isEquivalence ≣-setoid
-∘-isMagma .∙-cong  x≣y u≣v .eq x∼y = eq x≣y (eq u≣v x∼y)
+∘-isMagma .∙-cong (mk≣ x≣y) (mk≣ u≣v) .eq x∼y = x≣y (u≣v x∼y)
 
 ∘-isSemiGroup : IsSemigroup _≣_ _∘_
 ∘-isSemiGroup .isMagma = ∘-isMagma
@@ -66,18 +69,19 @@ open IsGroup hiding (setoid)
 
 ∘-e-inv-isGroup : IsGroup _≣_ _∘_ e inv
 ∘-e-inv-isGroup .isMonoid = ∘-e-isMonoid
-∘-e-inv-isGroup .inverse .proj₁ g .eq {x} x∼y = S.trans (left-inverse-of g x) x∼y
-∘-e-inv-isGroup .inverse .proj₂ g .eq {x} x∼y = S.trans (right-inverse-of g x) x∼y
-∘-e-inv-isGroup .⁻¹-cong {f} {g} f≣g .eq {x} {y} x∼y = begin
-  from f ⟨$⟩ x                 ≈˘⟨ left-inverse-of g $ from f ⟨$⟩ x ⟩
-  from g * to g * from f ⟨$⟩ x ≈˘⟨ cong (from g) $ eq f≣g S.refl ⟩
-  from g * to f * from f ⟨$⟩ x ≈⟨ cong (from g) $ right-inverse-of f x ⟩
-  from g ⟨$⟩ x                 ≈⟨ cong (from g) x∼y ⟩
-  from g ⟨$⟩ y                 ∎
+∘-e-inv-isGroup .inverse .proj₁ g .eq {x} {y} x∼y =
+  left-inverse-of g y (to g ⟨$⟩ x) (cong (to g) x∼y)
+∘-e-inv-isGroup .inverse .proj₂ g .eq {x} {y} x∼y =
+  right-inverse-of g y (from g ⟨$⟩ x) (cong (from g) x∼y)
+∘-e-inv-isGroup .⁻¹-cong {f} {g} (mk≣ f≣g) .eq {x} {y} x∼y = begin
+  from f ⟨$⟩ x                 ≈˘⟨ left-inverse-of g (from f ⟨$⟩ x) (to g ⟨$⟩ (from f ⟨$⟩ x)) S.refl ⟩
+  from g * to g * from f ⟨$⟩ x ≈˘⟨ cong (from g) $ f≣g S.refl ⟩
+  from g * to f * from f ⟨$⟩ x ≈⟨ cong (from g) $ right-inverse-of f y (from f ⟨$⟩ x) (cong (from f) x∼y) ⟩
+  from g ⟨$⟩ y ∎
   where
     open import Relation.Binary.Reasoning.Setoid setoid
 
-SymGroup : Group (g₁ ⊔ g₂) (suc (g₁ ⊔ g₂))
+SymGroup : Group (g₁ ⊔ g₂) (g₁ ⊔ g₂)
 Carrier SymGroup = Sym
 _≈_ SymGroup = _≣_
 _∙_ SymGroup = _∘_

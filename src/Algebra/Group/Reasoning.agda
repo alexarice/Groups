@@ -5,172 +5,32 @@ module Algebra.Group.Reasoning {g₁ g₂} (𝓖 : Group g₁ g₂) where
 
 open import Algebra.Group.Symmetric 𝓖
 open import Algebra.Group.Symmetric.Equality 𝓖
-open import Algebra.Group.Symmetric.Inclusion 𝓖 public
-open import Algebra.Group.Symmetric.PartialEquality 𝓖
+open Group SymGroup
 
-open Group PartSymGroup hiding (_≈_)
-open Group 𝓖 using (_≈_)
+import Algebra.Reasoning.Magma (magma) as M
 
-applyAt : ∀ f {g} before after → f ≣ g → before ∘ f ∘ after ≣' before ∘ g ∘ after
-applyAt f {g} before after p = ∙-congʳ {after} {before ∘ f} {before ∘ g} lem
- where
-  lem : before ∘ f ≣' before ∘ g
-  lem = ∙-congˡ {before} {f} {g} (weaken p)
+open M public hiding (begin_; step-≈; step-≈˘; step-no-focus; step-no-focus˘)
 
-applyAtT : ∀ f {g} before after {h}
-         → f ≣ g
-         → before ∘ g ∘ after ≣' h
-         → before ∘ f ∘ after ≣' h
-applyAtT f {g} before after p rest = ≣'-trans {before ∘ f ∘ after} {before ∘ g ∘ after} (applyAt f before after p) rest
+open import Algebra.Group.Reasoning.Reflection 𝓖 public using (begin⟨_⟩_)
 
-applyAtT' : ∀ f {g} before after {h}
-          → g ≣ f
-          → before ∘ g ∘ after ≣' h
-          → before ∘ f ∘ after ≣' h
-applyAtT' f before after p rest = applyAtT f before after (≣-sym p) rest
+open import Algebra.Group.Symmetric.Inclusion 𝓖 public using (⟦⟧;⟦_⟧)
+open import Tactic.Homomorphism.Group public hiding (Expr)
 
-applyAtTnoB : ∀ f {g} after {h}
-            → f ≣ g
-            → g ∘ after ≣' h
-            → f ∘ after ≣' h
-applyAtTnoB f after p rest  = applyAtT f e after p rest
+open import Data.Tree.Binary.Indexed
 
-applyAtTnoB' : ∀ f {g} after {h}
-             → g ≣ f
-             → g ∘ after ≣' h
-             → f ∘ after ≣' h
-applyAtTnoB' f after p rest = applyAtT' f e after p rest
+open import Data.Product using (_,_)
 
-applyAtTnoA : ∀ f {g} before {h}
-            → f ≣ g
-            → before ∘ g ≣' h
-            → before ∘ f ≣' h
-applyAtTnoA f before p rest = applyAtT f before e p rest
+⌊⌋ : Expr _
+⌊⌋ = leaf e , here-l
 
-applyAtTnoA' : ∀ f {g} before {h}
-             → g ≣ f
-             → before ∘ g ≣' h
-             → before ∘ f ≣' h
-applyAtTnoA' f before p rest = applyAtT' f before e p rest
+infixr 2 step-≣ step-≣˘ step-≣-no-focus step-≣-no-focus˘
 
-applyAtTnoBA : ∀ f {g} {h}
-             → f ≣ g
-             → g ≣' h
-             → f ≣' h
-applyAtTnoBA f p rest = applyAtT f e e p rest
+step-≣ = M.step-≈
+step-≣˘ = M.step-≈˘
+step-≣-no-focus = M.step-no-focus
+step-≣-no-focus˘ = M.step-no-focus˘
 
-applyAtTnoBA' : ∀ f {g} {h}
-              → g ≣ f
-              → g ≣' h
-              → f ≣' h
-applyAtTnoBA' f p rest = applyAtT' f e e p rest
-
-applyAtTM : ∀ {g} before after {h}
-          → e ≣ g
-          → before ∘ g ∘ after ≣' h
-          → before ∘ e ∘ after ≣' h
-applyAtTM before after p rest = applyAtT e before after p rest
-
-applyAtTM' : ∀ {g} before after {h}
-          → g ≣ e
-          → before ∘ g ∘ after ≣' h
-          → before ∘ after ≣' h
-applyAtTM' before after p rest = applyAtTM before after (≣-sym p) rest
-
-applyAtTnoBM : ∀ {g} after {h}
-             → e ≣ g
-             → g ∘ after ≣' h
-             → after ≣' h
-applyAtTnoBM after p rest = applyAtTM e after p rest
-
-applyAtTnoBM' : ∀ {g} after {h}
-              → g ≣ e
-              → g ∘ after ≣' h
-              → after ≣' h
-applyAtTnoBM' after p rest = applyAtTM' e after p rest
-
-applyAtTnoAM : ∀ {g} before {h}
-             → e ≣ g
-             → before ∘ g ≣' h
-             → before ≣' h
-applyAtTnoAM before p rest = applyAtTM before e p rest
-
-applyAtTnoAM' : ∀ {g} before {h}
-              → g ≣ e
-              → before ∘ g ≣' h
-              → before ≣' h
-applyAtTnoAM' before p rest = applyAtTM' before e p rest
-
-applyAtTnoBAM : ∀ {g} {h}
-              → e ≣ g
-              → g ≣' h
-              → e ≣' h
-applyAtTnoBAM p rest = applyAtTM e e p rest
-
-applyAtTnoBAM' : ∀ {g} {h}
-               → g ≣ e
-               → g ≣' h
-               → e ≣' h
-applyAtTnoBAM' p rest = applyAtTM' e e p rest
-
-infixr 40 applyAtT
-syntax applyAtT f before after p rest = before ∘⟨ f ⟩∘ after ≣⟨ p ⟩ rest
-
-infixr 40 applyAtT'
-syntax applyAtT' f before after p rest = before ∘⟨ f ⟩∘ after ≣˘⟨ p ⟩ rest
-
-infixr 40 applyAtTnoB
-syntax applyAtTnoB f after p rest = ⟨ f ⟩∘ after ≣⟨ p ⟩ rest
-
-infixr 40 applyAtTnoB'
-syntax applyAtTnoB' f after p rest = ⟨ f ⟩∘ after ≣˘⟨ p ⟩ rest
-
-infixr 40 applyAtTnoA
-syntax applyAtTnoA f before p rest = before ∘⟨ f ⟩≣⟨ p ⟩ rest
-
-infixr 40 applyAtTnoA'
-syntax applyAtTnoA' f before p rest = before ∘⟨ f ⟩≣˘⟨ p ⟩ rest
-
-infixr 40 applyAtTnoBA
-syntax applyAtTnoBA f p rest = ⟨ f ⟩≣⟨ p ⟩ rest
-
-infixr 40 applyAtTnoBA'
-syntax applyAtTnoBA' f p rest = ⟨ f ⟩≣˘⟨ p ⟩ rest
-
-infixr 40 applyAtTM
-syntax applyAtTM before after p rest = before ∘⟨⟩∘ after ≣⟨ p ⟩ rest
-
-infixr 40 applyAtTM'
-syntax applyAtTM' before after p rest = before ∘⟨⟩∘ after ≣˘⟨ p ⟩ rest
-
-infixr 40 applyAtTnoBM
-syntax applyAtTnoBM after p rest = ⟨⟩∘ after ≣⟨ p ⟩ rest
-
-infixr 40 applyAtTnoBM'
-syntax applyAtTnoBM' after p rest = ⟨⟩∘ after ≣˘⟨ p ⟩ rest
-
-infixr 40 applyAtTnoAM
-syntax applyAtTnoAM before p rest = before ∘⟨⟩≣⟨ p ⟩ rest
-
-infixr 40 applyAtTnoAM'
-syntax applyAtTnoAM' before p rest = before ∘⟨⟩≣˘⟨ p ⟩ rest
-
-infixr 40 applyAtTnoBAM
-syntax applyAtTnoBAM p rest = ⟨⟩≣⟨ p ⟩ rest
-
-infixr 40 applyAtTnoBAM'
-syntax applyAtTnoBAM' p rest = ⟨⟩≣˘⟨ p ⟩ rest
-
-end : ∀ h → h ≣' h
-end h = ≣'-refl {h}
-
-infixr 50 end
-syntax end h = h ∎
-
--- begin_ : ∀ {g h} → ⟦ g ⟧ ≣' ⟦ h ⟧ → g ≈ h
--- begin_ {g} {h} p = ⟦⟧-injective p'
---   where
---     p' : ⟦ g ⟧ ≣ ⟦ h ⟧
---     p' .eq = peq p
-
-open import Algebra.Group.Reasoning.Reflection 𝓖 public
+syntax step-≣  x rest fx≣g = x ≣⌊  fx≣g ⌋ rest
+syntax step-≣˘ x rest g≣fx = x ≣˘⌊ g≣fx ⌋ rest
+syntax step-≣-no-focus  g rest g≣h = g ≣⟨  g≣h ⟩ rest
+syntax step-≣-no-focus˘ g rest h≣g = g ≣˘⟨ h≣g ⟩ rest

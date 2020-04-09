@@ -7,17 +7,18 @@ open import Algebra.Bundles using (Group)
 open import Function
 open import Level
 
-open import Data.Bool    as Bool    using (Bool; _∨_; if_then_else_)
+open import Data.Bool    as Bool    using (Bool; _∨_; if_then_else_;false)
 open import Data.Maybe   as Maybe   using (Maybe; just; nothing; maybe)
 open import Data.List    as List    using (List; _∷_; [])
 open import Data.Nat     as ℕ       using (ℕ; suc; zero)
 open import Data.Product as Product using (_×_; _,_)
 
 open import Agda.Builtin.Reflection
-open import Reflection.TypeChecking.MonadSyntax
+open import Reflection.TypeChecking.Monad.Syntax
 open import Reflection.Argument
 
 import Relation.Binary.Reasoning.Setoid as SetoidReasoning
+import Algebra.Reasoning.Magma as MagmaReasoning
 
 open import Algebra.Morphism.Group
 
@@ -43,6 +44,7 @@ module _ {c₁ ℓ₁ c₂ ℓ₂} {From : Group c₁ ℓ₁} {To : Group c₂ �
                           _⁻¹ to _⁻¹₂;
                           _≈_ to _≈₂_;
                           setoid to setoid₂;
+                          magma to magma₂;
                           ∙-cong to ∙-cong₂;
                           ∙-congʳ to ∙-congʳ₂;
                           ∙-congˡ to ∙-congˡ₂;
@@ -53,7 +55,7 @@ module _ {c₁ ℓ₁ c₂ ℓ₂} {From : Group c₁ ℓ₁} {To : Group c₂ �
                           ⁻¹-cong to ⁻¹-cong₂)
   open GroupMorphism f
 
-  open SetoidReasoning setoid₂
+  open MagmaReasoning magma₂ hiding (Expr)
 
   [_↓] : Expr Carrier₁ → Carrier₁
   [ x ∙' y ↓] = [ x ↓] ∙₁ [ y ↓]
@@ -81,11 +83,11 @@ module _ {c₁ ℓ₁ c₂ ℓ₂} {From : Group c₁ ℓ₁} {To : Group c₂ �
   proof ε' = ε-homo
   proof (inv' x) = begin
     f[ inv' x ↓]                                    ≈˘⟨ identityʳ₂ f[ inv' x ↓] ⟩
-    f[ inv' x ↓] ∙₂ ε₂                              ≈˘⟨ ∙-congˡ₂ $ inverseʳ₂ f[ x ↓] ⟩
+    f[ inv' x ↓] ◂ ⌊ ε₂ ⌋                           ≈˘⌊ inverseʳ₂ f[ x ↓] ⌋
     f[ inv' x ↓] ∙₂ (f[ x ↓] ∙₂ f[ x ↓] ⁻¹₂)        ≈˘⟨ assoc₂ f[ inv' x ↓] f[ x ↓] (f[ x ↓] T.⁻¹) ⟩
-    (f[ inv' x ↓] ∙₂ f[ x ↓]) ∙₂ f[ x ↓] ⁻¹₂        ≈˘⟨ ∙-congʳ₂ $ ∙-homo [ inv' x ↓] [ x ↓] ⟩
-    morphism ([ inv' x ↓] ∙₁ [ x ↓]) ∙₂ f[ x ↓] ⁻¹₂ ≈⟨ ∙-congʳ₂ $ ⟦⟧-cong $ inverseˡ₁ [ x ↓] ⟩
-    morphism ε₁ ∙₂ f[ x ↓] ⁻¹₂                      ≈⟨ ∙-congʳ₂ $ ε-homo ⟩
+    ⌊ f[ inv' x ↓] ∙₂ f[ x ↓] ⌋ ▸ f[ x ↓] ⁻¹₂       ≈˘⌊ ∙-homo [ inv' x ↓] [ x ↓] ⌋
+    ⌊ morphism ([ inv' x ↓] ∙₁ [ x ↓]) ⌋ ▸ f[ x ↓] ⁻¹₂ ≈⌊ ⟦⟧-cong $ inverseˡ₁ [ x ↓] ⌋
+    ⌊ morphism ε₁ ⌋ ▸ f[ x ↓] ⁻¹₂                      ≈⌊ ε-homo ⌋
     ε₂ ∙₂ f[ x ↓] ⁻¹₂                               ≈⟨ identityˡ₂ (f[ x ↓] T.⁻¹) ⟩
     f[ x ↓] ⁻¹₂                                     ≈⟨ ⁻¹-cong₂ $ proof x ⟩
     f[ x ⇓] ⁻¹₂                                     ≡⟨⟩
@@ -157,26 +159,31 @@ getArgs _ = nothing
 
 constructSoln : Term → Term → Term → Term → Term
 constructSoln f eq lhs rhs =
-  let grp = quote GroupMorphism.to-group ⟨ def ⟩ f ⟨∷⟩ [] in
+  let grp = quote GroupMorphism.to-group ⟨ def ⟩ f ⟨∷⟩ []
+      f⇓ = quote f[_⇓]
+      f↓ = quote f[_↓]
+      l = buildExpr lhs
+      r = buildExpr rhs in
   quote Group.trans ⟨ def ⟩ grp ⟨∷⟩
+    (f⇓ ⟨ def ⟩ f ⟨∷⟩ l ⟨∷⟩ []) ⟅∷⟆
+    (f↓ ⟨ def ⟩ f ⟨∷⟩ r ⟨∷⟩ []) ⟅∷⟆
+    (f⇓ ⟨ def ⟩ f ⟨∷⟩ r ⟨∷⟩ []) ⟅∷⟆
     (quote Group.trans ⟨ def ⟩ grp ⟨∷⟩
+      (f⇓ ⟨ def ⟩ f ⟨∷⟩ l ⟨∷⟩ []) ⟅∷⟆
+      (f↓ ⟨ def ⟩ f ⟨∷⟩ l ⟨∷⟩ []) ⟅∷⟆
+      (f↓ ⟨ def ⟩ f ⟨∷⟩ r ⟨∷⟩ []) ⟅∷⟆
       (quote Group.sym ⟨ def ⟩ grp ⟨∷⟩
-        (quote proof ⟨ def ⟩ f ⟨∷⟩ buildExpr lhs ⟨∷⟩ []) ⟨∷⟩ [])
+        (f↓ ⟨ def ⟩ f ⟨∷⟩ l ⟨∷⟩ []) ⟅∷⟆
+        (f⇓ ⟨ def ⟩ f ⟨∷⟩ l ⟨∷⟩ []) ⟅∷⟆
+        (quote proof ⟨ def ⟩ f ⟨∷⟩ l ⟨∷⟩ []) ⟨∷⟩ [])
       ⟨∷⟩
       (quote GroupMorphism.⟦⟧-cong ⟨ def ⟩ f ⟨∷⟩ eq ⟨∷⟩ [])
       ⟨∷⟩ []
     )
     ⟨∷⟩
-    (quote proof ⟨ def ⟩ f ⟨∷⟩ buildExpr rhs ⟨∷⟩ [])
+    (quote proof ⟨ def ⟩ f ⟨∷⟩ r ⟨∷⟩ [])
     ⟨∷⟩
     []
-
-constructReturn : Term → Term → Term → Term
-constructReturn f lhs rhs =
-  let grp = quote GroupMorphism.to-group ⟨ def ⟩ f ⟨∷⟩ [] in
-  let lhs' = quote f[_⇓] ⟨ def ⟩ f ⟨∷⟩ buildExpr lhs ⟨∷⟩ [] in
-  let rhs' = quote f[_⇓] ⟨ def ⟩ f ⟨∷⟩ buildExpr rhs ⟨∷⟩ [] in
-  quote Group._≈_ ⟨ def ⟩ grp ⟨∷⟩ lhs' ⟨∷⟩ rhs' ⟨∷⟩ []
 
 solve-macro : Term → Term → Term → TC _
 solve-macro f eq hole = do
@@ -184,9 +191,8 @@ solve-macro f eq hole = do
   just (lhs , rhs) ← returnTC (getArgs eq')
     where nothing → typeError (strErr "could not split arg" ∷ termErr eq ∷ [])
   let soln = constructSoln f eq lhs rhs
-  returnType ← normalise $ constructReturn f lhs rhs
-  hole' ← checkType hole returnType
-  unify hole' soln
+  debugPrint "" 1 (strErr "soln" ∷ termErr soln ∷ [])
+  unify hole soln
 
 macro
   ⟨_⟩⦅_⦆ : Term → Term → Term → TC _
