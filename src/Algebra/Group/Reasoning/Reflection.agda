@@ -57,7 +57,6 @@ begin-macro f proof hole = do
   hole' ← inferType hole >>= normalise
   just (lhs , rhs) ← returnTC (getArgs hole')
     where nothing → typeError (termErr hole' ∷ [])
-  debugPrint "" 1 (strErr "lhs:" ∷ termErr lhs ∷ strErr "rhs:" ∷ termErr rhs ∷ [])
   let soln = constructBackSoln f proof lhs rhs
   unify hole soln
 
